@@ -1,114 +1,155 @@
-# Ingestion Universal
+<div align="center">
 
-Upload any document (PDF / Word / PowerPoint / Excel / image). It's converted
-to PDF if needed, parsed into section-oriented chunks (auto digital / scanned /
-mixed handling), and shown in an inline inspector with page-image + bounding-box
-overlays.
+# ◆ Ingest_rag
 
-Scanned pages are OCR'd automatically with Tesseract on upload. If Tesseract's
-result on a page isn't good enough (handwriting, poor scan quality), the
-pipeline **automatically escalates that page to LightOnOCR-2-1B** in-line, as
-part of the same upload/ingest pass -- so there's no separate "rerun" visible
-to the user, the escalated result is simply what comes back. On top of that,
-the UI also has an explicit **Enhanced Mode** button: if the automatic result
-still isn't right, the user can force a full LightOnOCR-2-1B re-run for the
-whole document with one click.
+**Parse anything. Understand everything.**
 
-## Project layout
+Drop in a scan, a slide deck, a spreadsheet, or a handwritten form — get back clean, structured,
+searchable content, with every piece mapped back to exactly where it came from on the page.
 
-```
-ingestion_universal/
-├── main.py                    # web entry point (uvicorn)
-├── cli.py                     # batch entry point (same pipeline, no server)
-├── requirements.txt
-├── config.py                  # USER-FACING settings (paths, tunables, limits)
-├── constants.py               # HARDCODED vocabulary (never user-configurable)
-├── src/
-│   ├── app.py                 # FastAPI app factory + global error handling
-│   ├── common.py               # logger + exception hierarchy + pydantic schemas
-│   ├── convert_to_pdf.py       # Office/image -> PDF normalization
-│   ├── parse_manual.py         # PDF -> structured chunks, OCR + handwriting escalation
-│   ├── services.py             # job/ingestion/enhance/export orchestration
-│   └── routes.py               # all 5 HTTP endpoints (GET /, /api/ingest, /api/enhance/{id},
-│                                #                        /api/export/{id}, /api/health)
-├── templates/
-│   └── index.html             # SPA shell
-├── static/
-│   ├── css/style.css
-│   └── js/app.js
-└── server_data/                # runtime output (per-job folders), gitignored
-```
+</div>
 
-**Why this split:**
-- `config.py` holds things a deployer/user might reasonably change (paths, DPI, size limits, thresholds) -- read via `settings.X`. A single file, not a package, since there's only ever one settings object.
-- `constants.py` holds fixed vocabulary that's never meant to be edited at runtime (engine name strings, mode enums) -- read via `from constants import ...`.
-- `src/common.py` bundles three small, unrelated-but-shared pieces (logging, the exception hierarchy, pydantic schemas) that both `services.py` and `routes.py` depend on but that don't contain behavior of their own.
-- `src/services.py` is where the actual work happens (convert -> parse -> OCR -> chunk, plus job/export bookkeeping) and has no FastAPI imports, so it's callable from `cli.py` unchanged. It merges what used to be four separate service files -- job/ingestion/enhance/export -- since together they're one cohesive orchestration layer, each piece under ~100 lines.
-- `src/routes.py` merges all 5 endpoint groups (previously 5 files) into one file -- it's the HTTP boundary only: parse the request, call a services.py function, shape the response.
-- `src/convert_to_pdf.py` and `src/parse_manual.py` stay standalone files rather than folders -- each is a single cohesive module, and `parse_manual.py` (~1,400 lines) is deliberately not merged into anything else since it's the core of the whole pipeline.
+---
 
-There's no unused `assets/` folder in this layout -- it existed in an earlier version but nothing in the code ever referenced it.
+## What it does
 
-## Setup
+- **Any format, one drop** — PDF, Word (`.doc`/`.docx`), PowerPoint (`.ppt`/`.pptx`), and images
+  (PNG/JPG/TIFF) are all accepted directly, typed or scanned.
+- **Typed or scanned — both read fine** — clean digital text and scanned paper pages are handled
+  side by side in the same document, classified per page, automatically.
+- **Handwriting, picked up too** — handwritten notes and annotations are recognized alongside
+  printed text, not skipped.
+- **Two OCR engines, matched to the job** —
+  [Tesseract](https://github.com/tesseract-ocr/tesseract) handles everyday pages fast, by default,
+  and automatically escalates a page to a deeper model if its confidence is low or it finds
+  nothing at all. For the pages that still aren't right, **Enhanced Mode** re-runs just the page(s)
+  you pick through [LightOnOCR‑2‑1B](https://huggingface.co/lightonai/LightOnOCR-2-1B), a
+  vision-language OCR model — targeted at those pages only, not a full re-ingest of the document.
+- **Comes out structured, not a blob** — headings, paragraphs, tables, and lists are split into
+  labeled, ordered chunks with section numbers and token estimates.
+- **Every chunk knows its spot** — click any extracted chunk in the sidebar and jump straight to
+  its exact bounding box on the original page.
+- **Ready for RAG** — every chunk ships with clean text, a token estimate, and its exact page and
+  bounding box, so it can be dropped straight into an embedding index with citations intact.
+- **Download & export** — pull the full parsed JSON plus page images as a `.zip` at any time.
+
+## How it's built
+
+| Layer | What it uses |
+|---|---|
+| Native document parsing | [`opendataloader-pdf`](https://pypi.org/project/opendataloader-pdf/) — structured, reading-order-aware PDF → JSON (Java-backed) |
+| Office format conversion | LibreOffice (`soffice`), headless, for Word/PowerPoint → PDF |
+| Page rendering | [PyMuPDF](https://pypi.org/project/pymupdf/) |
+| Default OCR | [Tesseract](https://github.com/tesseract-ocr/tesseract) via `pytesseract`, with automatic escalation on low-confidence pages |
+| Enhanced-Mode OCR | [LightOnOCR‑2‑1B](https://huggingface.co/lightonai/LightOnOCR-2-1B) via `transformers` + `torch` |
+| Backend | [FastAPI](https://fastapi.tiangolo.com/) + [Uvicorn](https://www.uvicorn.org/) |
+| Frontend | Plain HTML / CSS / JS — no framework, no build step |
+
+## Getting started
+
+### Prerequisites (system, not pip-installable)
+
+- **Java 11+** — required by `opendataloader-pdf`
+- **LibreOffice** (`soffice` on PATH) — Word/PowerPoint → PDF conversion
+- **Tesseract OCR** (`tesseract` on PATH), plus any extra language packs you need
+
+### Install
 
 ```bash
 pip install -r requirements.txt
 ```
 
-System dependencies (not pip-installable):
-- **Java 11+** — required by `opendataloader-pdf`
-- **LibreOffice** (`soffice` on PATH) — Office → PDF conversion
-- **Tesseract OCR** (`tesseract` on PATH) — scanned-page OCR
+Enhanced Mode (LightOnOCR-2-1B) is optional. Without it installed, everything else still works —
+the Enhanced Mode button is disabled server-side (`/api/health` reports `lighton_available: false`).
+To enable it:
 
-Optional, for **Enhanced Mode** (LightOnOCR-2-1B, handwriting-capable):
 ```bash
-python -m venv .venv_lighton && source .venv_lighton/bin/activate
 pip install "transformers>=5.0.0" torch pillow
 ```
-Without this installed, everything still works — the Enhanced Mode button is
-simply disabled server-side (`/api/health` reports `lighton_available: false`,
-and `/api/enhance/{job_id}` returns `503 ocr_engine_unavailable`).
 
-## Run
+### Run
 
 ```bash
 python main.py                 # -> http://localhost:8000
-# or
+# or, with live reload:
 uvicorn main:app --reload
+```
+
+### Tuning Enhanced Mode on CPU
+
+LightOnOCR-2-1B is a vision-language model, so it's naturally slower per page on CPU than
+Tesseract. A few environment variables (read in `config.py`) tune the tradeoff:
+
+```bash
+LIGHTON_MAX_NEW_TOKENS=500 \   # generation cap per page (default 800) -- the biggest speed lever
+LIGHTON_CPU_THREADS=4 \        # cap CPU threads if this box also runs other work
+LIGHTON_QUANTIZE_CPU=1 \       # dynamic int8 quantization -- smaller + often 2-3x faster on CPU
+python main.py
 ```
 
 ## API
 
-| Method | Path                     | Description                                             |
-|--------|--------------------------|----------------------------------------------------------|
-| GET    | `/`                      | Inspector UI                                              |
-| POST   | `/api/ingest`            | Upload + process a file. Returns chunks JSON + summary.   |
-| POST   | `/api/enhance/{job_id}`  | Force a LightOnOCR-2-1B re-run for that job's document.    |
-| GET    | `/api/export/{job_id}`   | Download a `.zip` of `<doc>.chunks.json` + `images/`.       |
-| GET    | `/api/health`            | Reports which OCR engines are actually available.          |
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/` | Web UI |
+| `POST` | `/api/ingest` | Upload and parse a document. Returns chunks JSON + summary. |
+| `GET` | `/api/ingest-status/{job_id}` | Poll ingest progress |
+| `POST` | `/api/enhance/{job_id}` | Re-OCR specific pages (`{"pages": [3, 7]}`) — or all pending pages if omitted — in Enhanced Mode |
+| `GET` | `/api/export/{job_id}` | Download a `.zip` of `<doc>.chunks.json` + page images |
+| `GET` | `/api/health` | Reports which OCR engines are actually available |
 
-Every response's `summary.mode` is `"normal"` (Tesseract / native text) or
-`"enhanced"` (LightOnOCR-2-1B was used). `summary.can_enhance` tells the frontend
-whether the Enhanced Mode button should be enabled.
+`summary.mode` is `"normal"` (Tesseract / native text) or `"enhanced"` (LightOnOCR-2-1B was used on
+at least one page). `summary.can_enhance` / `summary.pending_enhance_pages` tell the frontend which
+pages still have room for a deeper pass.
 
-## Handwriting escalation logic
+## OCR escalation logic
 
-`src/parse_manual.py::ocr_page_nodes()` escalates a scanned page from
-Tesseract to LightOnOCR-2-1B automatically whenever `handwriting="auto"` is in
-effect — which is the default for both the web app's `/api/ingest` and the
-CLI. This happens in-line, within the single ingest pass, before any result
-is returned, so it's not a visible "rerun." The explicit
-`/api/enhance/{job_id}` call (Enhanced Mode button) additionally lets the
-user force `handwriting="force"` afterward, re-running the *whole* document
-through LightOnOCR-2-1B regardless of Tesseract's confidence.
+`src/parse_manual.py::ocr_page_nodes()` escalates a scanned page from Tesseract to LightOnOCR-2-1B
+automatically whenever `handwriting="auto"` is in effect (the default for `/api/ingest`), so a
+typical document only pays the slow-model cost on the pages that actually need it. A page escalates
+automatically when either:
 
-A page escalates automatically when EITHER:
-- Tesseract found `>= HANDWRITING_MIN_WORDS` confident words, but their mean
-  confidence is `<= HANDWRITING_CONF_THRESHOLD` ("it tried, but wasn't sure"), or
-- Tesseract found **zero** usable words at all — the strongest possible signal
-  that the page (e.g. cursive handwriting) needs a real handwriting model, not
-  a weaker "not enough evidence to escalate" case as it was treated before.
+- Tesseract found `>= HANDWRITING_MIN_WORDS` confident words, but their mean confidence is
+  `<= HANDWRITING_CONF_THRESHOLD` ("it tried, but wasn't sure"), or
+- Tesseract found **zero** usable words at all.
 
-Tunable via `config.py` (`HANDWRITING_CONF_THRESHOLD`,
-`HANDWRITING_MIN_WORDS`) or per-call via `--handwriting-threshold` /
-`--handwriting-min-words` on the CLI.
+Both thresholds are tunable in `config.py`. `Enhance Mode` (`/api/enhance/{job_id}`) is the
+explicit, user-triggered version of the same escalation — scoped to whichever pages you ask for
+(or all pages still pending), reusing the cached native parse and converted PDF so it doesn't
+re-run conversion or re-parsing, only the targeted OCR pass.
+
+## Project layout
+
+```
+├── main.py                # web entry point (uvicorn)
+├── cli.py                  # batch entry point, same pipeline, no server
+├── config.py                # user-facing settings (paths, DPI, thresholds, OCR tuning)
+├── constants.py             # fixed vocabulary (engine names, mode enums) -- not runtime-configurable
+├── requirements.txt
+├── src/
+│   ├── app.py                 # FastAPI app factory, static/template mounting, error handling
+│   ├── common.py               # logger, exception hierarchy, shared Pydantic schemas
+│   ├── convert_to_pdf.py        # Office/image -> PDF normalization
+│   ├── parse_manual.py          # native parsing, OCR engines + escalation, chunk building
+│   ├── services.py              # ingest / enhance / export orchestration (no FastAPI imports)
+│   └── routes.py                # all HTTP endpoints
+├── templates/
+│   └── index.html              # single-page shell (landing / upload / inspector)
+├── static/
+│   ├── css/style.css            # design tokens + all UI styling
+│   ├── js/app.js                 # inspector UI logic
+│   ├── js/landing.js             # landing page slideshow + transitions
+│   └── media/hero-flight.webm     # hero animation asset
+└── server_data/                # runtime output (per-job folders), gitignored
+```
+
+`services.py` has no FastAPI imports, so it's callable unchanged from `cli.py` for batch/offline
+use outside the web app.
+
+## Supported formats
+
+`PDF` · `DOCX` / `DOC` · `PPTX` / `PPT` · `PNG` · `JPG` · `TIFF` — typed, scanned, or handwritten.
+
+## License
+
+Add your license here.
