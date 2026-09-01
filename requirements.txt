@@ -1,0 +1,48 @@
+# ── Ingestion Universal — Python dependencies ─────────────────────────────
+# Install:  pip install -r requirements.txt
+#
+# System dependencies (NOT pip-installable — install separately):
+#   Java 11+          required by opendataloader-pdf
+#   LibreOffice       Office→PDF conversion   (apt: libreoffice / brew: --cask libreoffice)
+#   Tesseract OCR     scanned-page OCR        (apt: tesseract-ocr / brew: tesseract)
+#                     extra languages e.g. apt: tesseract-ocr-deu, tesseract-ocr-hin
+# ──────────────────────────────────────────────────────────────────────────
+
+# Config / validation
+pydantic==2.9.2
+
+# Parsing
+opendataloader-pdf==2.5.0     # PDF -> structured reading-order JSON (Java-backed)
+pymupdf==1.28.2               # page rendering, page sizes, image->pdf fallback
+
+# OCR (built-in path)
+pytesseract==0.3.13           # Tesseract wrapper (needs the tesseract binary)
+pillow==12.1.1                # image handling for OCR + blank-image filtering
+
+# File conversion
+img2pdf==0.6.3                # image -> image-only ("scanned") PDF (lossless)
+
+# Web app
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+python-multipart==0.0.32      # multipart file uploads for FastAPI
+
+# ── Optional ──────────────────────────────────────────────────────────────
+# Alternative OCR engine (heavier: pulls in torch, downloads models on first run).
+# Enable with:  --ocr-engine easyocr
+# easyocr>=1.7.2
+# numpy>=1.26                 # required by the easyocr code path
+
+# External Docling/EasyOCR OCR server (instead of built-in OCR).
+# Start with:  opendataloader-pdf-hybrid --port 5002
+# opendataloader-pdf[hybrid]==2.5.0
+
+# Testing the API without a running server
+# httpx==0.28.1
+
+# ── Optional but recommended: handwriting OCR / "Enhanced Mode" (LightOnOCR-2-1B) ──
+# Heavy; install in its own environment. Without this installed, ingestion still
+# works fine (falls back to Tesseract everywhere) but the "Enhanced Mode" button
+# in the UI will be disabled and /api/health will report lighton_available=false.
+#   python -m venv .venv_lighton && source .venv_lighton/bin/activate
+#   pip install "transformers>=5.0.0" torch pillow
