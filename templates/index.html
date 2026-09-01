@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parse-Anything</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css?v=20260826b">
+</head>
+<body>
+
+<!-- ==================== LANDING ==================== -->
+<section id="landing" class="gradient-surface">
+  <div class="accent-bar" aria-hidden="true"></div>
+  <div class="ld-scroll">
+  <div class="ld-topbar">
+    <div class="wordmark sm fade-in">
+      <span class="spark" aria-hidden="true">
+        <svg viewBox="0 0 26 26" width="13" height="13" fill="none">
+          <circle cx="13" cy="13" r="5.4" stroke="#fff" stroke-width="2.2"/>
+          <circle cx="13" cy="13" r="1.6" fill="#fff"/>
+        </svg>
+      </span>ParseAnything
+    </div>
+    <button class="ld-cta-top" id="ldSkip" style="opacity:0;position:absolute;pointer-events:none">Skip to upload</button>
+  </div>
+
+  <div class="hero-wrap fade-in delay-1">
+    <div class="hero-copy">
+      <span class="hero-eyebrow">Every format. One pipeline</span>
+      <h1 class="hero-heading">Parse anything.<br>Understand <span class="hl">everything</span>.</h1>
+      <p class="hero-sub">Watch chunks assemble from the page, in real time.</p>
+      <div class="ld-hero-ctas">
+        <button class="ld-cta" id="ldStartHero">Start Parsing →</button>
+      </div>
+      <div class="ld-formats-row">
+        <div class="ld-formats-head">Supported formats</div>
+        <div class="ld-fmt-pills">
+          <div class="ld-fmt-pill"><span class="sw scan"><svg viewBox="0 0 24 24" width="13" height="13" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="#fff"/><path d="M3 16l5-5 4 4 3-3 6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Scanned</span></div>
+          <div class="ld-fmt-pill"><span class="sw hand"><svg viewBox="0 0 24 24" width="13" height="13" fill="none"><path d="M4 16.5 15 5.5l3.5 3.5L7.5 20H4v-3.5Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M13 7.5l3.5 3.5" stroke="#fff" stroke-width="1.8"/></svg></span><span class="lbl">Handwritten</span></div>
+          <div class="ld-fmt-pill"><span class="sw pdf"><svg viewBox="0 0 24 24" width="13" height="13" fill="none"><path d="M6 2.5h9l4 4V21a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 13h6M9 16.5h6M9 9.5h2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lbl">PDF</span></div>
+          <div class="ld-fmt-pill"><span class="sw doc">W</span><span class="lbl">Word</span></div>
+          <div class="ld-fmt-pill"><span class="sw ppt">P</span><span class="lbl">PowerPoint</span></div>
+          <div class="ld-fmt-pill"><span class="sw img"><svg viewBox="0 0 24 24" width="13" height="13" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/><circle cx="8.5" cy="10" r="1.6" fill="#fff"/><path d="M3 16.5l5-5 4 4 3-3 6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Images</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 480 420">
+        <defs>
+          <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#7c5cf0"/>
+            <stop offset="1" stop-color="#5433d6"/>
+          </linearGradient>
+          <linearGradient id="backGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".85"/>
+            <stop offset="1" stop-color="#ffffff" stop-opacity=".35"/>
+          </linearGradient>
+        </defs>
+
+        <ellipse cx="255" cy="372" rx="150" ry="18" fill="#5b3fe0" opacity=".10"/>
+
+        <!-- orbit paths -->
+        <path d="M60 230c-25 55 0 110 55 120" fill="none" stroke="#5b3fe0" stroke-opacity=".35" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <path d="M60 230c10-55 60-85 105-70" fill="none" stroke="#5b3fe0" stroke-opacity=".35" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <path d="M420 190c30 45 15 105-35 128" fill="none" stroke="#5b3fe0" stroke-opacity=".35" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <path d="M420 190c-5-40-45-65-80-58" fill="none" stroke="#5b3fe0" stroke-opacity=".35" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <circle cx="60" cy="230" r="5" fill="#5b3fe0" opacity=".55"/>
+        <circle cx="115" cy="350" r="5" fill="#5b3fe0" opacity=".55"/>
+        <circle cx="420" cy="190" r="5" fill="#5b3fe0" opacity=".55"/>
+        <circle cx="385" cy="318" r="5" fill="#5b3fe0" opacity=".55"/>
+
+        <!-- base platform -->
+        <path d="M170 355l90-34 90 34-90 34-90-34Z" fill="#5b3fe0" opacity=".10"/>
+
+        <g transform="rotate(-6 255 210)">
+          <!-- back card 1 (tall, offset) -->
+          <rect x="255" y="60" width="115" height="230" rx="10" fill="url(#backGrad)" stroke="#5b3fe0" stroke-opacity=".14"/>
+          <rect x="268" y="78" width="46" height="30" rx="4" fill="#5b3fe0" opacity=".14"/>
+          <path d="M268 78h30l16 16v14h-46V78Z" fill="#ffffff" opacity=".7"/>
+
+          <!-- back card 2 -->
+          <rect x="205" y="95" width="115" height="215" rx="10" fill="url(#backGrad)" stroke="#5b3fe0" stroke-opacity=".16"/>
+
+          <!-- front purple card -->
+          <path d="M155 160h95l35 35v130a10 10 0 0 1-10 10H155a10 10 0 0 1-10-10V170a10 10 0 0 1 10-10Z" fill="url(#cardGrad)"/>
+          <path d="M250 160v25a10 10 0 0 0 10 10h25" fill="#ffffff" opacity=".18"/>
+          <rect x="168" y="185" width="46" height="30" rx="4" fill="#ffffff"/>
+          <path d="M168 191l23 14 23-14" stroke="#5433d6" stroke-width="2" fill="none"/>
+          <rect x="168" y="232" width="70" height="7" rx="3.5" fill="#ffffff" opacity=".92"/>
+          <rect x="168" y="248" width="70" height="7" rx="3.5" fill="#ffffff" opacity=".7"/>
+          <rect x="168" y="264" width="46" height="7" rx="3.5" fill="#ffffff" opacity=".5"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ==================== UPLOAD ==================== -->
+<!-- ==================== UPLOAD ==================== -->
+<section id="upload" class="gradient-surface" style="display:none">
+  <div class="up-wrap">
+    <button class="up-back" id="upBack">‹ Back</button>
+    <div class="wordmark sm up-wordmark fade-in"><span class="spark">◆</span>Parse<span class="dash">-</span>Anything</div>
+    <div class="up-panel fade-in delay-1">
+      <div class="up-card">
+        <div class="up-card-head">
+          <h1>Upload your document</h1>
+          <div class="up-rule"></div>
+        </div>
+        <div class="up-body">
+          <div class="drop" id="drop">
+            <div class="up-folder" aria-hidden="true">
+              <span class="up-folder-back"></span>
+              <span class="up-folder-front"></span>
+            </div>
+            <div class="big">Drag your file here</div>
+            <div class="up-or"><span>Or</span></div>
+            <button id="pick" class="up-browse">Browse your computer</button>
+            <input id="file" type="file" hidden
+              accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.ppt,.pptx,.odp,image/*">
+          </div>
+          <div class="up-steps">
+            <div class="up-steps-head">What happens next</div>
+            <div class="up-step" data-step="0"><span>Check the file type</span><i class="up-step-state"></i></div>
+            <div class="up-step" data-step="1"><span>Prepare the file for parsing</span><i class="up-step-state"></i></div>
+            <div class="up-step" data-step="2"><span>Classify and OCR scanned pages</span><i class="up-step-state"></i></div>
+            <div class="up-step" data-step="3"><span>Ready to inspect &amp; enhance</span><i class="up-step-state"></i></div>
+          </div>
+        </div>
+        <div class="up-card-foot">
+          <div class="sub">Word, PowerPoint, PDFs, and images are all read automatically —
+            typed pages and scanned pages alike — and hard pages can be re-run in <b>Enhanced&nbsp;Mode</b>
+            with one click.</div>
+          <div class="types">
+            <span>PDF</span><span>DOCX</span><span>PPTX</span>
+            <span>PNG</span><span>JPG</span><span>TIFF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bar" id="bar"><i></i></div>
+    <div class="status" id="status"></div>
+  </div>
+</section>
+
+<!-- ==================== INSPECTOR ==================== -->
+<div id="app">
+  <header class="gradient-surface">
+    <div class="wordmark sm brand"><span class="spark">◆</span>Parse<span class="dash">-</span>Anything</div>
+    <div class="docmeta" id="docmeta"></div>
+    <div class="header-actions">
+      <button class="actionbtn" id="enhanceBtn" title="Re-run OCR in Enhanced Mode">
+        <span class="ico">✨</span><span class="lbl">Enhanced Mode</span>
+        <span class="spinner" id="enhanceSpinner" hidden></span>
+      </button>
+      <button class="actionbtn" id="downloadBtn" title="Download JSON + images as .zip">
+        <span class="ico">⤓</span><span class="lbl">Download</span>
+      </button>
+      <button class="newbtn" id="newdoc">New document</button>
+    </div>
+  </header>
+  <section class="fileinfo" id="fileinfo" aria-label="Document information"></section>
+  <main>
+    <nav class="rail" id="rail"></nav>
+    <section class="stage" id="stage">
+      <div class="zoomctl">
+        <button id="zout" title="Zoom out">−</button>
+        <span id="zlabel">Fit</span>
+        <button id="zin" title="Zoom in">+</button>
+        <button id="zfit" title="Fit width">⤢</button>
+      </div>
+      <div class="pagewrap" id="pagewrap">
+        <img id="pageimg" alt="">
+        <svg class="overlay" id="overlay" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="hud" id="hud"></div>
+      <div class="stage-loading" id="stageLoading" hidden>
+        <div class="spinner big"></div>
+        <div class="stage-loading-text">Re-running OCR in Enhanced Mode…</div>
+      </div>
+    </section>
+    <aside class="side">
+      <div class="toolbar">
+        <span class="chip on" id="tgboxes">boxes</span>
+        <span class="chip" id="tgdetail">per-line</span>
+        <span class="chip" id="tgdim">focus selection</span>
+        <div class="legend" id="legend"></div>
+      </div>
+      <input id="chunksearch" type="search" placeholder="Filter chunks…"
+             autocomplete="off" spellcheck="false">
+      <div class="list" id="list"></div>
+    </aside>
+  </main>
+</div>
+
+<!-- ==================== TOASTS ==================== -->
+<div id="toasts" aria-live="polite"></div>
+
+<script src="/static/js/landing.js?v=20260826b"></script>
+<script src="/static/js/app.js?v=20260826b"></script>
+</body>
+</html>
